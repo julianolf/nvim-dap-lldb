@@ -1,6 +1,6 @@
-# nvim-dap-rust
+# nvim-dap-lldb
 
-An extension for [nvim-dap](https://github.com/mfussenegger/nvim-dap) to provide Rust debugging support.
+An extension for [nvim-dap](https://github.com/mfussenegger/nvim-dap) to provide C, C++ and Rust debugging support.
 
 ## Requires
 
@@ -14,7 +14,7 @@ Just like any other NeoVim plugin.
 Here is an example using [Lazy](https://github.com/folke/lazy.nvim):
 ```lua
 {
-   "julianolf/nvim-dap-rust",
+   "julianolf/nvim-dap-lldb",
    dependencies = { "mfussenegger/nvim-dap" },
    opts = { codelldb_path = "/path/to/codelldb" },
 }
