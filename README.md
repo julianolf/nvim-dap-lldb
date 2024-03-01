@@ -2,16 +2,16 @@
 
 An extension for [nvim-dap](https://github.com/mfussenegger/nvim-dap) to provide C, C++ and Rust debugging support.
 
-## Requires
+### Requires
 
 - [nvim-dap](https://github.com/mfussenegger/nvim-dap) plugin.
 - [CodeLLDB](https://github.com/vadimcn/codelldb) debugger extension.
 
-## Installation
+### Installation
 
 Just like any other NeoVim plugin.
 
-Here is an example using [Lazy](https://github.com/folke/lazy.nvim):
+Here is an example using [Lazy](https://github.com/folke/lazy.nvim) package manager:
 ```lua
 {
    "julianolf/nvim-dap-lldb",
@@ -20,4 +20,4 @@ Here is an example using [Lazy](https://github.com/folke/lazy.nvim):
 }
 ```
 
-For CodeLLDB installation I recommend using [mason.vim](https://github.com/williamboman/mason.nvim). When using Mason you can omit the `codelldb_path` option, the extension will find it automatically.
+For CodeLLDB installation I recommend using [mason.vim](https://github.com/williamboman/mason.nvim). When using Mason you can omit the `codelldb_path` option, the extension will find it automatically. If no path was given and Mason is not available the extension will assume that CodeLLDB is on the system path.
