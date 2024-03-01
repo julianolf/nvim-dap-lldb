@@ -23,22 +23,33 @@ local function list_targets()
    local command = { "cargo", "build", "--quiet", "--message-format", "json" }
    local outputs = vim.fn.systemlist(command)
 
-   if vim.v.shell_error ~= 0 then
-      vim.notify("cargo build failed", vim.log.levels.ERROR)
-      return targets
-   end
+   local failed = vim.v.shell_error ~= 0
+   local errors = {}
 
    for _, line in ipairs(outputs) do
-      local json = vim.fn.json_decode(line)
+      local _, json = pcall(vim.fn.json_decode, line)
 
-      if
-         type(json) == "table"
+      if type(json) ~= "table" then
+         goto end_loop
+      end
+
+      if failed and json.reason == "compiler-message" then
+         table.insert(errors, json.message.rendered)
+      elseif
+         not failed
          and json.reason == "compiler-artifact"
          and json.executable ~= nil
          and vim.tbl_contains(json.target.kind, "bin")
       then
          table.insert(targets, json.executable)
       end
+
+      ::end_loop::
+   end
+
+   if failed then
+      vim.notify(table.concat(errors, "\n"), vim.log.levels.ERROR)
+      return nil
    end
 
    return targets
@@ -47,6 +58,10 @@ end
 local function select_target()
    local targets = list_targets()
    local sep = package.config:sub(1, 1)
+
+   if targets == nil then
+      return nil
+   end
 
    if #targets == 0 then
       return vim.fn.input("Path to executable: ", vim.fn.getcwd() .. sep, "file")
