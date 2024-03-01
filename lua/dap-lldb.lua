@@ -19,10 +19,11 @@ local function find_codelldb()
    return nil
 end
 
-local function list_targets()
-   local targets = {}
-   local command = { "cargo", "build", "--quiet", "--message-format", "json" }
+local function list_targets(build_selection)
+   local selection = build_selection or "bins"
+   local command = { "cargo", "build", "--" .. selection, "--quiet", "--message-format", "json" }
    local outputs = vim.fn.systemlist(command)
+   local targets = {}
 
    local failed = vim.v.shell_error ~= 0
    local errors = {}
@@ -40,7 +41,10 @@ local function list_targets()
          not failed
          and json.reason == "compiler-artifact"
          and json.executable ~= nil
-         and vim.tbl_contains(json.target.kind, "bin")
+         and (
+            (selection == "bins" and vim.tbl_contains(json.target.kind, "bin"))
+            or (selection == "tests" and json.profile.test)
+         )
       then
          table.insert(targets, json.executable)
       end
@@ -56,8 +60,8 @@ local function list_targets()
    return targets
 end
 
-local function select_target()
-   local targets = list_targets()
+local function select_target(build_selection)
+   local targets = list_targets(build_selection)
 
    if targets == nil then
       return nil
@@ -114,7 +118,27 @@ function M.setup(opts)
 
    dap.configurations.rust = {
       base_conf,
-      vim.tbl_extend("force", base_conf, { name = "Debug w/ args", args = read_args }),
+      vim.tbl_extend("force", base_conf, {
+         name = "Debug (+args)",
+         args = read_args,
+      }),
+      vim.tbl_extend("force", base_conf, {
+         name = "Debug tests",
+         program = function()
+            return select_target("tests")
+         end,
+         args = { "--test-threads=1" },
+      }),
+      vim.tbl_extend("force", base_conf, {
+         name = "Debug tests (+args)",
+         program = function()
+            return select_target("tests")
+         end,
+         args = function()
+            local args = read_args()
+            return vim.list_extend(args, { "--test-threads=1" })
+         end,
+      }),
    }
 end
 
