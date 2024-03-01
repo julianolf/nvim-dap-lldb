@@ -1,5 +1,7 @@
 local M = {}
 
+local sep = package.config:sub(1, 1)
+
 local function require_dap()
    local ok, dap = pcall(require, "dap")
    assert(ok, "nvim-dap is required to use dap-lldb")
@@ -11,7 +13,6 @@ local function find_codelldb()
 
    if ok and registry.is_installed("codelldb") then
       local pkg = registry.get_package("codelldb")
-      local sep = package.config:sub(1, 1)
       return table.concat({ pkg:get_install_path(), "extension", "adapter", "codelldb" }, sep)
    end
 
@@ -57,7 +58,6 @@ end
 
 local function select_target()
    local targets = list_targets()
-   local sep = package.config:sub(1, 1)
 
    if targets == nil then
       return nil
@@ -89,6 +89,15 @@ local function read_args()
    return vim.split(args, " ", { trimempty = true })
 end
 
+local base_conf = {
+   name = "Debug",
+   type = "codelldb",
+   request = "launch",
+   cwd = "${workspaceFolder}",
+   program = select_target,
+   stopOnEntry = false,
+}
+
 function M.setup(opts)
    local dap = require_dap()
    local codelldb = opts.codelldb_path or find_codelldb() or "codelldb"
@@ -104,23 +113,8 @@ function M.setup(opts)
    }
 
    dap.configurations.rust = {
-      {
-         name = "Debug",
-         type = "codelldb",
-         request = "launch",
-         cwd = "${workspaceFolder}",
-         program = select_target,
-         stopOnEntry = false,
-      },
-      {
-         name = "Debug w/ args",
-         type = "codelldb",
-         request = "launch",
-         cwd = "${workspaceFolder}",
-         program = select_target,
-         args = read_args,
-         stopOnEntry = false,
-      },
+      base_conf,
+      vim.tbl_extend("force", base_conf, { name = "Debug w/ args", args = read_args }),
    }
 end
 
