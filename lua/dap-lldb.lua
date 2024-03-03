@@ -19,6 +19,10 @@ local function find_codelldb()
    return nil
 end
 
+local function read_target()
+   return vim.fn.input("Path to executable: ", vim.fn.getcwd() .. sep, "file")
+end
+
 local function list_targets(build_selection)
    local selection = build_selection or "bins"
    local command = { "cargo", "build", "--" .. selection, "--quiet", "--message-format", "json" }
@@ -68,7 +72,7 @@ local function select_target(build_selection)
    end
 
    if #targets == 0 then
-      return vim.fn.input("Path to executable: ", vim.fn.getcwd() .. sep, "file")
+      return read_target()
    end
 
    if #targets == 1 then
@@ -98,7 +102,7 @@ local base_conf = {
    type = "codelldb",
    request = "launch",
    cwd = "${workspaceFolder}",
-   program = select_target,
+   program = read_target,
    stopOnEntry = false,
 }
 
@@ -116,10 +120,18 @@ function M.setup(opts)
       },
    }
 
-   dap.configurations.rust = {
+   dap.configurations.c = {
       base_conf,
+      vim.tbl_extend("force", base_conf, { name = "Debug (+args)", args = read_args }),
+   }
+   dap.configurations.cpp = dap.configurations.c
+   dap.configurations.rust = {
+      vim.tbl_extend("force", base_conf, {
+         program = select_target,
+      }),
       vim.tbl_extend("force", base_conf, {
          name = "Debug (+args)",
+         program = select_target,
          args = read_args,
       }),
       vim.tbl_extend("force", base_conf, {
