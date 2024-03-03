@@ -152,6 +152,14 @@ function M.setup(opts)
          end,
       }),
    }
+
+   if type(opts.configurations) == "table" then
+      for lang, conf in pairs(opts.configurations) do
+         if type(dap.configurations[lang]) == "table" then
+            dap.configurations[lang] = vim.list_extend(dap.configurations[lang], conf)
+         end
+      end
+   end
 end
 
 return M
