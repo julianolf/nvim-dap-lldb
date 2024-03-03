@@ -180,9 +180,9 @@ function M.setup(opts)
       end
    end
 
-   if type(opts.launch_file) == "table" then
-      local lang = opts.launch_file.language
-      local path = opts.launch_file.path
+   if type(opts.launch_file) == "string" then
+      local lang = vim.bo.filetype
+      local path = opts.launch_file
 
       if type(dap.configurations[lang]) == "table" then
          local confs = read_conf(path)
