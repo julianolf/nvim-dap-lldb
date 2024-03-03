@@ -114,7 +114,7 @@ end
 
 local base_conf = {
    name = "Debug",
-   type = "codelldb",
+   type = "lldb",
    request = "launch",
    cwd = "${workspaceFolder}",
    program = read_target,
@@ -125,7 +125,7 @@ function M.setup(opts)
    local dap = require_dap()
    local codelldb = opts.codelldb_path or find_codelldb() or "codelldb"
 
-   dap.adapters.codelldb = {
+   dap.adapters.lldb = {
       type = "server",
       port = "${port}",
       executable = {
