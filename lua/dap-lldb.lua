@@ -171,7 +171,11 @@ function M.setup(opts)
    if type(opts.configurations) == "table" then
       for lang, conf in pairs(opts.configurations) do
          if type(dap.configurations[lang]) == "table" then
-            dap.configurations[lang] = vim.list_extend(dap.configurations[lang], conf)
+            if opts.extend then
+               dap.configurations[lang] = vim.list_extend(dap.configurations[lang], conf)
+            else
+               dap.configurations[lang] = conf
+            end
          end
       end
    end
@@ -182,7 +186,11 @@ function M.setup(opts)
 
       if type(dap.configurations[lang]) == "table" then
          local confs = read_conf(path)
-         dap.configurations[lang] = vim.list_extend(dap.configurations[lang], confs)
+         if opts.extend then
+            dap.configurations[lang] = vim.list_extend(dap.configurations[lang], confs)
+         else
+            dap.configurations[lang] = confs
+         end
       end
    end
 end
