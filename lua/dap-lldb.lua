@@ -97,6 +97,21 @@ local function read_args()
    return vim.split(args, " ", { trimempty = true })
 end
 
+local function read_conf(path)
+   local file = assert(io.open(path, "r"))
+   local content = file:read("*all")
+
+   file:close()
+
+   local _, json = pcall(vim.fn.json_decode, content)
+
+   if type(json) == "table" and type(json.configurations) == "table" then
+      return json.configurations
+   end
+
+   return {}
+end
+
 local base_conf = {
    name = "Debug",
    type = "codelldb",
@@ -158,6 +173,16 @@ function M.setup(opts)
          if type(dap.configurations[lang]) == "table" then
             dap.configurations[lang] = vim.list_extend(dap.configurations[lang], conf)
          end
+      end
+   end
+
+   if type(opts.launch_file) == "table" then
+      local lang = opts.launch_file.language
+      local path = opts.launch_file.path
+
+      if type(dap.configurations[lang]) == "table" then
+         local confs = read_conf(path)
+         dap.configurations[lang] = vim.list_extend(dap.configurations[lang], confs)
       end
    end
 end
