@@ -19,7 +19,7 @@ local function find_codelldb()
    return nil
 end
 
-local function compiler_errors(input)
+local function compiler_error(input)
    local _, json = pcall(vim.fn.json_decode, input)
 
    if type(json) == "table" and json.reason == "compiler-message" then
@@ -29,7 +29,7 @@ local function compiler_errors(input)
    return nil
 end
 
-local function compiler_targets(input)
+local function compiler_target(input)
    local _, json = pcall(vim.fn.json_decode, input)
 
    if
@@ -55,12 +55,12 @@ local function list_targets(selection)
    local out = vim.fn.systemlist(cmd)
 
    if vim.v.shell_error ~= 0 then
-      local errors = vim.tbl_map(compiler_errors, out)
+      local errors = vim.tbl_map(compiler_error, out)
       vim.notify(table.concat(errors, "\n"), vim.log.levels.ERROR)
       return nil
    end
 
-   return vim.tbl_map(compiler_targets, out)
+   return vim.tbl_map(compiler_target, out)
 end
 
 local function select_target(selection)
