@@ -53,12 +53,13 @@ local function map_targets(stdout)
 end
 
 local function read_target()
-   return vim.fn.input("Path to executable: ", vim.fn.getcwd() .. sep, "file")
+   local cwd = string.format("%s%s", vim.fn.getcwd(), sep)
+   return vim.fn.input("Path to executable: ", cwd, "file")
 end
 
 local function list_targets(selection)
-   local arg = selection or "bins"
-   local cmd = { "cargo", "build", "--" .. arg, "--quiet", "--message-format", "json" }
+   local arg = string.format("--%s", selection or "bins")
+   local cmd = { "cargo", "build", arg, "--quiet", "--message-format", "json" }
    local out = vim.fn.systemlist(cmd)
 
    if vim.v.shell_error ~= 0 then
@@ -89,7 +90,7 @@ local function select_target(selection)
 
    for index, target in ipairs(targets) do
       local parts = vim.split(target, sep, { trimempty = true })
-      local option = index .. ". " .. parts[#parts]
+      local option = string.format("%d. %s", index, parts[#parts])
       table.insert(options, option)
    end
 
