@@ -119,14 +119,44 @@ local function read_conf(path)
    return {}
 end
 
-local base_conf = {
-   name = "Debug",
-   type = "lldb",
-   request = "launch",
-   cwd = "${workspaceFolder}",
-   program = read_target,
-   stopOnEntry = false,
-}
+local function default_configurations(dap)
+   local cfg = {
+      name = "Debug",
+      type = "lldb",
+      request = "launch",
+      cwd = "${workspaceFolder}",
+      program = read_target,
+      stopOnEntry = false,
+   }
+
+   dap.configurations.c = {
+      cfg,
+      vim.tbl_extend("force", cfg, { name = "Debug (+args)", args = read_args }),
+   }
+
+   dap.configurations.cpp = dap.configurations.c
+
+   dap.configurations.rust = {
+      vim.tbl_extend("force", cfg, { program = select_target }),
+      vim.tbl_extend("force", cfg, { name = "Debug (+args)", program = select_target, args = read_args }),
+      vim.tbl_extend("force", cfg, {
+         name = "Debug tests",
+         program = function()
+            return select_target("tests")
+         end,
+         args = { "--test-threads=1" },
+      }),
+      vim.tbl_extend("force", cfg, {
+         name = "Debug tests (+args)",
+         program = function()
+            return select_target("tests")
+         end,
+         args = function()
+            return vim.list_extend(read_args(), { "--test-threads=1" })
+         end,
+      }),
+   }
+end
 
 function M.setup(opts)
    local dap = require_dap()
@@ -142,38 +172,7 @@ function M.setup(opts)
       },
    }
 
-   dap.configurations.c = {
-      base_conf,
-      vim.tbl_extend("force", base_conf, { name = "Debug (+args)", args = read_args }),
-   }
-   dap.configurations.cpp = dap.configurations.c
-   dap.configurations.rust = {
-      vim.tbl_extend("force", base_conf, {
-         program = select_target,
-      }),
-      vim.tbl_extend("force", base_conf, {
-         name = "Debug (+args)",
-         program = select_target,
-         args = read_args,
-      }),
-      vim.tbl_extend("force", base_conf, {
-         name = "Debug tests",
-         program = function()
-            return select_target("tests")
-         end,
-         args = { "--test-threads=1" },
-      }),
-      vim.tbl_extend("force", base_conf, {
-         name = "Debug tests (+args)",
-         program = function()
-            return select_target("tests")
-         end,
-         args = function()
-            local args = read_args()
-            return vim.list_extend(args, { "--test-threads=1" })
-         end,
-      }),
-   }
+   default_configurations(dap)
 
    if type(opts.configurations) == "table" then
       for lang, conf in pairs(opts.configurations) do
