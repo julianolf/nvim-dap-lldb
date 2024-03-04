@@ -29,23 +29,19 @@ local function compiler_errors(input)
    return nil
 end
 
-local function map_targets(stdout)
-   local targets = {}
+local function compiler_targets(input)
+   local _, json = pcall(vim.fn.json_decode, input)
 
-   for _, line in ipairs(stdout) do
-      local _, json = pcall(vim.fn.json_decode, line)
-
-      if
-         type(json) == "table"
-         and json.reason == "compiler-artifact"
-         and json.executable ~= nil
-         and (vim.tbl_contains(json.target.kind, "bin") or json.profile.test)
-      then
-         table.insert(targets, json.executable)
-      end
+   if
+      type(json) == "table"
+      and json.reason == "compiler-artifact"
+      and json.executable ~= nil
+      and (vim.tbl_contains(json.target.kind, "bin") or json.profile.test)
+   then
+      return json.executable
    end
 
-   return targets
+   return nil
 end
 
 local function read_target()
@@ -64,7 +60,7 @@ local function list_targets(selection)
       return nil
    end
 
-   return map_targets(out)
+   return vim.tbl_map(compiler_targets, out)
 end
 
 local function select_target(selection)
