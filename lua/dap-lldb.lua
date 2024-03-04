@@ -19,53 +19,59 @@ local function find_codelldb()
    return nil
 end
 
-local function read_target()
-   return vim.fn.input("Path to executable: ", vim.fn.getcwd() .. sep, "file")
-end
-
-local function list_targets(build_selection)
-   local selection = build_selection or "bins"
-   local command = { "cargo", "build", "--" .. selection, "--quiet", "--message-format", "json" }
-   local outputs = vim.fn.systemlist(command)
-   local targets = {}
-
-   local failed = vim.v.shell_error ~= 0
+local function map_errors(stdout)
    local errors = {}
 
-   for _, line in ipairs(outputs) do
+   for _, line in ipairs(stdout) do
       local _, json = pcall(vim.fn.json_decode, line)
 
-      if type(json) ~= "table" then
-         goto end_loop
-      end
-
-      if failed and json.reason == "compiler-message" then
+      if type(json) == "table" and json.reason == "compiler-message" then
          table.insert(errors, json.message.rendered)
-      elseif
-         not failed
+      end
+   end
+
+   return errors
+end
+
+local function map_targets(stdout)
+   local targets = {}
+
+   for _, line in ipairs(stdout) do
+      local _, json = pcall(vim.fn.json_decode, line)
+
+      if
+         type(json) == "table"
          and json.reason == "compiler-artifact"
          and json.executable ~= nil
-         and (
-            (selection == "bins" and vim.tbl_contains(json.target.kind, "bin"))
-            or (selection == "tests" and json.profile.test)
-         )
+         and (vim.tbl_contains(json.target.kind, "bin") or json.profile.test)
       then
          table.insert(targets, json.executable)
       end
-
-      ::end_loop::
-   end
-
-   if failed then
-      vim.notify(table.concat(errors, "\n"), vim.log.levels.ERROR)
-      return nil
    end
 
    return targets
 end
 
-local function select_target(build_selection)
-   local targets = list_targets(build_selection)
+local function read_target()
+   return vim.fn.input("Path to executable: ", vim.fn.getcwd() .. sep, "file")
+end
+
+local function list_targets(selection)
+   local arg = selection or "bins"
+   local cmd = { "cargo", "build", "--" .. arg, "--quiet", "--message-format", "json" }
+   local out = vim.fn.systemlist(cmd)
+
+   if vim.v.shell_error ~= 0 then
+      local errors = map_errors(out)
+      vim.notify(table.concat(errors, "\n"), vim.log.levels.ERROR)
+      return nil
+   end
+
+   return map_targets(out)
+end
+
+local function select_target(selection)
+   local targets = list_targets(selection)
 
    if targets == nil then
       return nil
