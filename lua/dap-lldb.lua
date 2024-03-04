@@ -158,6 +158,32 @@ local function default_configurations(dap)
    }
 end
 
+local function custom_configurations(dap, opts)
+   if type(opts.configurations) == "table" then
+      for lang, cfg in pairs(opts.configurations) do
+         local config = {}
+
+         if opts.extend_config then
+            config = dap.configurations[lang] or {}
+         end
+
+         dap.configurations[lang] = vim.list_extend(config, cfg)
+      end
+   end
+
+   if type(opts.launch_file) == "string" then
+      local cfg = read_conf(opts.launch_file)
+      local lang = vim.bo.filetype
+      local config = {}
+
+      if opts.extend_config then
+         config = dap.configurations[lang] or {}
+      end
+
+      dap.configurations[lang] = vim.list_extend(config, cfg)
+   end
+end
+
 function M.setup(opts)
    local dap = require_dap()
    local codelldb = opts.codelldb_path or find_codelldb() or "codelldb"
@@ -173,32 +199,7 @@ function M.setup(opts)
    }
 
    default_configurations(dap)
-
-   if type(opts.configurations) == "table" then
-      for lang, conf in pairs(opts.configurations) do
-         if type(dap.configurations[lang]) == "table" then
-            if opts.extend then
-               dap.configurations[lang] = vim.list_extend(dap.configurations[lang], conf)
-            else
-               dap.configurations[lang] = conf
-            end
-         end
-      end
-   end
-
-   if type(opts.launch_file) == "string" then
-      local lang = vim.bo.filetype
-      local path = opts.launch_file
-
-      if type(dap.configurations[lang]) == "table" then
-         local confs = read_conf(path)
-         if opts.extend then
-            dap.configurations[lang] = vim.list_extend(dap.configurations[lang], confs)
-         else
-            dap.configurations[lang] = confs
-         end
-      end
-   end
+   custom_configurations(dap, opts)
 end
 
 return M
