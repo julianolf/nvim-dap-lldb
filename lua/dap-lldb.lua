@@ -124,6 +124,7 @@ local function default_configurations(dap)
    dap.configurations.c = {
       cfg,
       vim.tbl_extend("force", cfg, { name = "Debug (+args)", args = read_args }),
+      vim.tbl_extend("force", cfg, { name = "Attach debugger", request = "attach" }),
    }
 
    dap.configurations.cpp = dap.configurations.c
@@ -147,6 +148,7 @@ local function default_configurations(dap)
             return vim.list_extend(read_args(), { "--test-threads=1" })
          end,
       }),
+      vim.tbl_extend("force", cfg, { name = "Attach debugger", request = "attach", program = select_target }),
    }
 end
 
