@@ -1,3 +1,9 @@
+---@mod dap-lldb LLDB extension for nvim-dap
+
+---@brief [[
+---An extension for nvim-dap to provide C, C++ and Rust debugging support.
+---@brief ]]
+
 local M = {}
 
 local sep = package.config:sub(1, 1)
@@ -178,6 +184,15 @@ local function custom_configurations(dap, opts)
    end
 end
 
+---@class SetupOpts
+---@field codelldb_path string|nil Path to CodeLLDB extension
+---@field extend_config boolean|nil Extend default configurations
+---@field launch_file string|nil Path to JSON configuration file
+---@field configurations table|nil Per programming language configuration
+---@see https://github.com/vadimcn/codelldb/blob/master/MANUAL.md
+
+---Register LLDB debug adapter
+---@param opts SetupOpts See |dap-lldb.SetupOpts|
 function M.setup(opts)
    local dap = require_dap()
    local codelldb = opts.codelldb_path or find_codelldb() or "codelldb"
