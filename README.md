@@ -32,18 +32,22 @@ You can pass custom configurations in two different ways, by passing a Lua table
 ```lua
 local cfg = {
    configurations = {
-      c = { -- c lang configurations
+      -- C lang configurations
+      c = {
          {
             name = "Launch debugger",
             type = "lldb",
             request = "launch",
             cwd = "${workspaceFolder}",
             program = function()
-                    local out = vim.fn.system({"make", "debug"}) -- build with debug symbols
-                    if vim.v.shell_error ~= 0 then -- check for errors
+                    -- Build with debug symbols
+                    local out = vim.fn.system({"make", "debug"})
+                    -- Check for errors
+                    if vim.v.shell_error ~= 0 then
                        vim.notify(out, vim.log.levels.ERROR)
                        return nil
-                    return "path/to/executable" -- return path to the debuggable program
+                    -- Return path to the debuggable program
+                    return "path/to/executable"
             end,
          },
       },
