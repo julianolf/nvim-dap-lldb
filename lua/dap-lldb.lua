@@ -133,7 +133,7 @@ local function default_configurations(dap)
       vim.tbl_extend("force", cfg, { name = "Attach debugger", request = "attach" }),
    }
 
-   dap.configurations.cpp = dap.configurations.c
+   dap.configurations.cpp = vim.tbl_extend("keep", {}, dap.configurations.c)
 
    dap.configurations.rust = {
       vim.tbl_extend("force", cfg, { program = select_target }),
