@@ -102,21 +102,6 @@ local function read_args()
    return vim.split(args, " ", { trimempty = true })
 end
 
-local function read_conf(path)
-   local file = assert(io.open(path, "r"))
-   local content = file:read("*all")
-
-   file:close()
-
-   local _, json = pcall(vim.fn.json_decode, content)
-
-   if type(json) == "table" and type(json.configurations) == "table" then
-      return json.configurations
-   end
-
-   return {}
-end
-
 local function default_configurations(dap)
    local cfg = {
       name = "Debug",
