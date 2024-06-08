@@ -161,12 +161,7 @@ end
 local function custom_configurations(dap, opts)
    if type(opts.configurations) == "table" then
       for lang, cfg in pairs(opts.configurations) do
-         local config = {}
-
-         if opts.extend_config then
-            config = dap.configurations[lang] or {}
-         end
-
+         local config = dap.configurations[lang] or {}
          dap.configurations[lang] = vim.list_extend(config, cfg)
       end
    end
@@ -174,11 +169,7 @@ local function custom_configurations(dap, opts)
    if type(opts.launch_file) == "string" then
       local cfg = read_conf(opts.launch_file)
       local lang = vim.bo.filetype
-      local config = {}
-
-      if opts.extend_config then
-         config = dap.configurations[lang] or {}
-      end
+      local config = dap.configurations[lang] or {}
 
       dap.configurations[lang] = vim.list_extend(config, cfg)
    end
@@ -186,7 +177,6 @@ end
 
 ---@class SetupOpts
 ---@field codelldb_path string|nil Path to CodeLLDB extension
----@field extend_config boolean|nil Extend default configurations
 ---@field launch_file string|nil Path to JSON configuration file
 ---@field configurations table|nil Per programming language configuration
 ---@see https://github.com/vadimcn/codelldb/blob/master/MANUAL.md

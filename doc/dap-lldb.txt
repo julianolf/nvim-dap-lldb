@@ -7,7 +7,6 @@ SetupOpts                                                   *dap-lldb.SetupOpts*
 
     Fields: ~
         {codelldb_path}   (string|nil)   Path to CodeLLDB extension
-        {extend_config}   (boolean|nil)  Extend default configurations
         {launch_file}     (string|nil)   Path to JSON configuration file
         {configurations}  (table|nil)    Per programming language configuration
 
