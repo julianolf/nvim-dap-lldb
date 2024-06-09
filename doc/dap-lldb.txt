@@ -1,13 +1,13 @@
 ==============================================================================
 LLDB extension for nvim-dap                                           *dap-lldb*
 
-An extension for nvim-dap to provide C, C++ and Rust debugging support.
+An extension for nvim-dap to provide C, C++, and Rust debugging support.
 
 SetupOpts                                                   *dap-lldb.SetupOpts*
 
     Fields: ~
-        {codelldb_path}   (string|nil)   Path to CodeLLDB extension
-        {configurations}  (table|nil)    Per programming language configuration
+        {codelldb_path}   (string|nil)  Path to CodeLLDB extension
+        {configurations}  (table|nil)   Per programming language configuration
 
     See: ~
         |https://github.com/vadimcn/codelldb/blob/master/MANUAL.md|
@@ -18,6 +18,10 @@ M.setup({opts})                                                 *dap-lldb.setup*
 
     Parameters: ~
         {opts}  (SetupOpts)  See |dap-lldb.SetupOpts|
+
+
+M.debug_test()                                             *dap-lldb.debug_test*
+    Debug test function above the cursor
 
 
 vim:tw=78:ts=8:noet:ft=help:norl:
