@@ -63,6 +63,7 @@ local cfg = {
 
 require("dap-lldb").setup(cfg)
 ```
+
 2. JSON configuration file:
 
 ```json
@@ -85,9 +86,15 @@ _Assuming the above JSON was saved in .vscode/launch.json._
 When starting a debug session via `dap.continue()` the JSON file is automatically loaded. It's also possible to manually load the file using the `load_launchjs` function.
 
 For more details on how to load launch configuration files, refer to the docs:
-- `:h dap-launch.json`
-- `:h dap-providers-configs`
+- `:help dap-launch.json`
+- `:help dap-providers-configs`
 
 This is useful when collaborating with programmers who use [Visual Studio Code](https://code.visualstudio.com/), allowing reuse of the same configurations.
 
 For a complete reference on how to create your own configurations, refer to the CodeLLDB user's [manual](https://github.com/vadimcn/codelldb/blob/master/MANUAL.md).
+
+### Usage
+
+- `:lua require('dap').continue()` to start debugging.
+- `:lua require('dap-lldb').debug_test()` to debug the test function above the cursor (Rust-only feature).
+- `:help dap-api` for more detailed information on how to work with DAP.
