@@ -66,7 +66,11 @@ local function list_targets(selection)
       return nil
    end
 
-   return vim.tbl_map(compiler_target, out)
+   local function filter(e)
+      return e ~= nil
+   end
+
+   return vim.tbl_filter(filter, vim.tbl_map(compiler_target, out))
 end
 
 local function select_target(selection)
