@@ -17,7 +17,7 @@ M.setup({opts})                                                 *dap-lldb.setup*
     Register LLDB debug adapter
 
     Parameters: ~
-        {opts}  (SetupOpts)  See |dap-lldb.SetupOpts|
+        {opts}  (SetupOpts|nil)  See |dap-lldb.SetupOpts|
 
 
 M.debug_test()                                             *dap-lldb.debug_test*
