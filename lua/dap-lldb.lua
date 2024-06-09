@@ -8,6 +8,15 @@ local M = {}
 
 local sep = package.config:sub(1, 1)
 
+local ts_query = [[
+(mod_item
+  name: (identifier) @module
+  body: (declaration_list
+    (attribute_item (attribute (identifier) @attribute (#eq? @attribute "test")))
+    (function_item
+      name: (identifier) @function)))
+]]
+
 local function require_dap()
    local ok, dap = pcall(require, "dap")
    assert(ok, "nvim-dap is required to use dap-lldb")
@@ -101,6 +110,39 @@ local function select_target(selection)
    return targets[choice]
 end
 
+local function select_test()
+   local filetype = vim.bo.filetype
+
+   if filetype ~= "rust" or vim.treesitter.language.get_lang(filetype) == nil then
+      return nil
+   end
+
+   local bufnr = vim.api.nvim_get_current_buf()
+   local query = vim.treesitter.query.parse(filetype, ts_query)
+   local parser = vim.treesitter.get_parser(bufnr, filetype)
+   local tree = parser:parse()[1]
+   local root = tree:root()
+   local stop = vim.api.nvim_win_get_cursor(0)[1]
+   local mod = nil
+   local fun = nil
+
+   for id, node in query:iter_captures(root, bufnr, 0, stop) do
+      local capture = query.captures[id]
+
+      if capture == "module" then
+         mod = vim.treesitter.get_node_text(node, 0)
+      elseif capture == "function" then
+         fun = vim.treesitter.get_node_text(node, 0)
+      end
+   end
+
+   if not mod or not fun then
+      return nil
+   end
+
+   return string.format("%s::%s", mod, fun)
+end
+
 local function read_args()
    local args = vim.fn.input("Enter args: ")
    return vim.split(args, " ", { trimempty = true })
@@ -141,6 +183,17 @@ local function default_configurations(dap)
          end,
          args = function()
             return vim.list_extend(read_args(), { "--test-threads=1" })
+         end,
+      }),
+      vim.tbl_extend("force", cfg, {
+         name = "Debug test (cursor)",
+         program = function()
+            return select_target("tests")
+         end,
+         args = function()
+            local test = select_test()
+            local args = test and { "--exact", test } or {}
+            return vim.list_extend(args, { "--test-threads=1" })
          end,
       }),
       vim.tbl_extend("force", cfg, { name = "Attach debugger", request = "attach", program = select_target }),
