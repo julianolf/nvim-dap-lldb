@@ -1,7 +1,7 @@
 ---@mod dap-lldb LLDB extension for nvim-dap
 
 ---@brief [[
----An extension for nvim-dap to provide C, C++ and Rust debugging support.
+---An extension for nvim-dap to provide C, C++, and Rust debugging support.
 ---@brief ]]
 
 local M = {}
@@ -232,6 +232,18 @@ function M.setup(opts)
 
    default_configurations(dap)
    custom_configurations(dap, opts)
+end
+
+---Debug test function above the cursor
+function M.debug_test()
+   if vim.bo.filetype ~= "rust" then
+      vim.notify("This feature is available only for Rust", vim.log.levels.ERROR)
+      return nil
+   end
+
+   local dap = require_dap()
+   local cfg = dap.configurations.rust[5]
+   dap.run(cfg)
 end
 
 return M
