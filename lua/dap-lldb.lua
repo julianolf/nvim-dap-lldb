@@ -215,8 +215,10 @@ end
 ---@see https://github.com/vadimcn/codelldb/blob/master/MANUAL.md
 
 ---Register LLDB debug adapter
----@param opts SetupOpts See |dap-lldb.SetupOpts|
+---@param opts SetupOpts|nil See |dap-lldb.SetupOpts|
 function M.setup(opts)
+   opts = type(opts) == "table" and opts or {}
+
    local dap = require_dap()
    local codelldb = opts.codelldb_path or find_codelldb() or "codelldb"
 
