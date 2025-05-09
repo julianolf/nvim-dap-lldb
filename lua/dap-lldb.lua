@@ -23,17 +23,6 @@ local function require_dap()
    return dap
 end
 
-local function find_codelldb()
-   local ok, registry = pcall(require, "mason-registry")
-
-   if ok and registry.is_installed("codelldb") then
-      local pkg = registry.get_package("codelldb")
-      return table.concat({ pkg:get_install_path(), "extension", "adapter", "codelldb" }, sep)
-   end
-
-   return nil
-end
-
 local function compiler_error(input)
    local _, json = pcall(vim.fn.json_decode, input)
 
@@ -220,7 +209,7 @@ function M.setup(opts)
    opts = type(opts) == "table" and opts or {}
 
    local dap = require_dap()
-   local codelldb = opts.codelldb_path or find_codelldb() or "codelldb"
+   local codelldb = opts.codelldb_path or "codelldb"
 
    dap.adapters.lldb = {
       type = "server",
