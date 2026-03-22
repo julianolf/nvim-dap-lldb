@@ -1,0 +1,22 @@
+name: CI
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v6
+      - name: Setup Tools
+        run: .github/scripts/setup-tools.sh
+        env:
+          NEOVIM_URL: ${{ secrets.NEOVIM_URL }}
+          SELENE_URL: ${{ secrets.SELENE_URL }}
+          STYLUA_URL: ${{ secrets.STYLUA_URL }}
+      - name: Lint
+        run: .github/scripts/lint.sh
+      - name: Test
+        run: .github/scripts/lint.sh
