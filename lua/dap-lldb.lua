@@ -6,8 +6,6 @@
 
 local M = {}
 
-local sep = package.config:sub(1, 1)
-
 local ts_query = [[
 (mod_item
   name: (identifier) @module
@@ -49,7 +47,7 @@ local function compiler_target(input)
 end
 
 local function read_target()
-   local cwd = string.format("%s%s", vim.fn.getcwd(), sep)
+   local cwd = vim.fs.joinpath(vim.fn.getcwd(), "")
    return vim.fn.input("Path to executable: ", cwd, "file")
 end
 
@@ -89,8 +87,8 @@ local function select_target(selection)
    local options = { "Select a target:" }
 
    for index, target in ipairs(targets) do
-      local parts = vim.split(target, sep, { trimempty = true })
-      local option = string.format("%d. %s", index, parts[#parts])
+      local name = vim.fs.basename(target)
+      local option = string.format("%d. %s", index, name)
       table.insert(options, option)
    end
 
