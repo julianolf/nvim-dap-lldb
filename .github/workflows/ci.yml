@@ -19,4 +19,4 @@ jobs:
       - name: Lint
         run: .github/scripts/lint.sh
       - name: Test
-        run: .github/scripts/lint.sh
+        run: .github/scripts/test.sh
