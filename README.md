@@ -1,5 +1,7 @@
 # nvim-dap-lldb
 
+[![CI](https://github.com/julianolf/nvim-dap-lldb/actions/workflows/ci.yml/badge.svg?event=push)](https://github.com/julianolf/nvim-dap-lldb/actions/workflows/ci.yml)
+
 An extension for [nvim-dap](https://github.com/mfussenegger/nvim-dap) to provide C, C++, and Rust debugging support.
 
 ### Requirements
