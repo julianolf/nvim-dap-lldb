@@ -97,6 +97,11 @@ For a complete reference on how to create your own configurations, refer to the 
 
 ### Usage
 
+Executable paths and arguments are requested through `vim.ui.input()`, and Rust targets
+are selected through `vim.ui.select()`. These prompts support asynchronous UI overrides.
+Cancelling a prompt aborts the debug launch; submitting an empty argument prompt runs
+without extra arguments.
+
 - `:lua require('dap').continue()` to start debugging.
 - `:lua require('dap-lldb').debug_test()` to debug the test function above the cursor (Rust-only feature).
 - `:help dap-api` for more detailed information on how to work with DAP.

@@ -48,7 +48,12 @@ end
 
 local function read_target()
    local cwd = vim.fs.joinpath(vim.fn.getcwd(), "")
-   return vim.fn.input("Path to executable: ", cwd, "file")
+   return coroutine.create(function(dap_run_co)
+      vim.ui.input({ prompt = "Path to executable: ", default = cwd, completion = "file" }, function(input)
+         local target = input and input ~= "" and input or require_dap().ABORT
+         coroutine.resume(dap_run_co, target)
+      end)
+   end)
 end
 
 local function list_targets(selection)
@@ -84,17 +89,11 @@ local function select_target(selection)
       return targets[1]
    end
 
-   local options = { "Select a target:" }
-
-   for index, target in ipairs(targets) do
-      local name = vim.fs.basename(target)
-      local option = string.format("%d. %s", index, name)
-      table.insert(options, option)
-   end
-
-   local choice = vim.fn.inputlist(options)
-
-   return targets[choice]
+   return coroutine.create(function(dap_run_co)
+      vim.ui.select(targets, { prompt = "Select a target:", format_item = vim.fs.basename }, function(target)
+         coroutine.resume(dap_run_co, target or require_dap().ABORT)
+      end)
+   end)
 end
 
 local function select_test()
@@ -130,9 +129,16 @@ local function select_test()
    return string.format("%s::%s", mod, fun)
 end
 
-local function read_args()
-   local args = vim.fn.input("Enter args: ")
-   return vim.split(args, " ", { trimempty = true })
+local function read_args(extra_args)
+   return coroutine.create(function(dap_run_co)
+      vim.ui.input({ prompt = "Enter args: " }, function(input)
+         local args = input and vim.split(input, " ", { trimempty = true }) or require_dap().ABORT
+         if args ~= require_dap().ABORT and extra_args then
+            vim.list_extend(args, extra_args)
+         end
+         coroutine.resume(dap_run_co, args)
+      end)
+   end)
 end
 
 local function default_configurations(dap)
@@ -169,7 +175,7 @@ local function default_configurations(dap)
             return select_target("tests")
          end,
          args = function()
-            return vim.list_extend(read_args(), { "--test-threads=1" })
+            return read_args({ "--test-threads=1" })
          end,
       }),
       vim.tbl_extend("force", cfg, {
